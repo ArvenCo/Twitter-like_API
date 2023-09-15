@@ -12,10 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('follows', function (Blueprint $table) {
-            $table->ulid('id');
-            $table->foreignUlid('user_id')->constrained();
-            $table->foreignUlid('follow_user_id ')->constrained(table: 'users', indexName='follows_user_id');
+            $table->ulid('id')->primary();
+            $table->foreignUlid('user_id');            
+            $table->foreignUlid('follow_user_id')->on('users');
             $table->timestamps();
+
+
+           
         });
     }
 

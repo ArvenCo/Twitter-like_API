@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tweets', function (Blueprint $table) {
-            $table->ulid('id');
+            $table->ulid('id')->primary();
             $table->string('tweet');
-            $table->foreignUlid('user_id')->constrained();
+            $table->foreignUlid('user_id');
             $table->timestamps();
+        
         });
     }
 
