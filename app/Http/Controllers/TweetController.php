@@ -15,15 +15,24 @@ class TweetController extends Controller
     public function store(Request $request)
     {
         $fields = $request->validate([
-            'tweet' => 'string',
-            'files' => 'max:50000000'
+            'tweet' => 'present|nullable',
+            'files' => 'present|nullable|max:50000000'
         ]);
+        
+
+        if (!$fields['tweet'] && !$fields['files'] ){
+            return response([
+                'status' => 'Bad Request',
+                'message' =>'No Post'
+            ], 400);
+        }
         
         $tweet = Tweet::create([
             'tweet' => $fields['tweet'],
             'user_id' => $request->user()['id']
         ]);
-        if($request->hasFile('files') && $request->file('files')> 0){
+
+        if( count($request->file('files')) > 0){
             $userFiles = new UserFileController;
             $response = $userFiles->store($request, $tweet->id);
             if(!$response){

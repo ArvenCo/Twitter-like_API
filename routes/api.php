@@ -3,6 +3,7 @@ use App\Http\Controllers\AuthController;
 
 use App\Http\Controllers\TweetController;
 use App\Http\Controllers\UserFileController;
+use App\Http\Controllers\FollowController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,22 +33,23 @@ Route::prefix('user')->group(function () {
 
 
 Route::group(['middleware' => ['auth:sanctum']],function(){
-    Route::get('/', function(){return ['message'=>'Connection Succes'];});
-    
     
     Route::group(['prefix' => '/tweet'], function(){
         Route::post('/',[TweetController::class, 'store']);
         Route::put('/{tweet_id}',[TweetController::class, 'update']);
         Route::delete('/{tweet_id}',[TweetController::class, 'destroy']);
     });
+
+    /**
+     * follow unfollow user
+     */
+    Route::group(['prefix' => '/follow'], function(){
+        Route::get('/',[FollowController::class, 'random_index']);
+        Route::post('/',[FollowController::class,'store']);
+        Route::delete('/{follow_user_id}',[FollowController::class, 'destroy']);
+    });
     
 });
-
-Route::get('/hello',function(){
-    return response(['message'=>'Hello World'],200);
-});
-
-
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
