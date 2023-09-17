@@ -7,6 +7,9 @@ use App\Models\Tweet;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Auth;
+
+use App\Http\Controllers\FollowController;
 
 class TweetController extends Controller
 {
@@ -56,5 +59,38 @@ class TweetController extends Controller
         $tweet = Tweet::find($tweet_id);
         $tweet->delete();
         return response(['message' => 'Tweet deleted'], 201);
+    }
+
+
+    public function show_tweets($id = null){
+        
+        $follow_ids = [];
+        $follows = new FollowController;
+        
+        foreach($follows->follow_list()as $follow){
+            array_push($follow_ids, $follow['follow_user_id']);
+        }
+        
+        if($id == null){
+            $tweets = Tweet::whereIn('user_id', $follow_ids)->get();
+        }else{
+            if (!in_array($id, $follow_ids) && $id != Auth::id()){
+                return response([
+                  'status' => 'Bad Request',
+                  'message' => 'You are not following this user'
+                ], 400);
+            }else{
+                $tweets = Tweet::where('user_id', $id)->get();
+            }
+        }
+       
+       
+
+        
+
+        
+        return response(['status'=> 'Success','tweets' => $tweets], 200);
+        
+        
     }
 }

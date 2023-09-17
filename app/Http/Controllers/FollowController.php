@@ -13,24 +13,28 @@ class FollowController extends Controller
 {
     //
 
-    function user_exist($id){
+    function exist($id){
         $user = User::find($id);
-        $exist = true;
-        if ($user === null){
-            $exist = false;
+        $follow = Follow::where('user_id', Auth::id())->where('follow_user_id', $id);
+        $user_exist = true;
+        if ($user === null ){
+            $user_exist = false;
         }
-        return ['exist' => $exist, $user];
+        $follow_exist = true;
+        if (!$follow->exists()){
+            $follow_exist = false;
+        }
+        
+        return ['user' => $user_exist,'follow'=> $follow_exist,  $user];
     }
 
     public function store (Request $request){
         $fields = $request->validate([
             'follow_user_id' => 'required'
         ]);
-        
-        $user = $this->user_exist($fields['follow_user_id']);
-
-        if (!$user['exist']){
-            return response(['status' => 'Bad Request'], 401);
+        $exist = $this->exist($fields['follow_user_id']);
+        if (!$exist['user']||$exist['follow']){
+            return response(['status' => 'Bad Request', 'message' => 'User not exist or User already followed'], 400);
         }
 
         $follow = Follow::create([
@@ -40,32 +44,43 @@ class FollowController extends Controller
 
         return response([
             'status' => 'success',
-            'message' => 'User '.$user[0]['name'].' followed',
+            'message' => 'User '.$exist[0]['name'].' followed',
             'followed' => $follow
         ],201);
     }
 
     public function destroy(int $follow_user_id){
-        $user = $this->user_exist($follow_user_id);
+        $exist = $this->exist($follow_user_id);
 
-        if (!$user['exist']){
-            return response(['statu' => 'Bad Request'], 401);
+        if (!$exist['user'] ||!$exist['follow']){
+            return response(['statu' => 'Bad Request', 'message' => 'User not found'], 400);
         }
+       
 
         $follow = Follow::where('user_id', Auth::id())
         ->where('follow_user_id', $follow_user_id);
         $follow->delete();
         
-        return response(['status' => 'Gone', 'message' => 'User '.$user[0]['name'].' Unfollowed'], 410);
+        return response(['status' => 'Gone', 'message' => 'User '.$exist[0]['name'].' Unfollowed'], 410);
+    }
+
+    public function follow_list(){
+        $follows = $follows = Follow::where('user_id', Auth::id())->get();
+        return $follows;
     }
 
 
-    public function random_index(){
-        $follows = Follow::select('follow_user_id')->where('user_id', Auth::id())->get();
-        dd(21);
-        $users = User::where('id', '!=', $follows['follow_user_id']);
+    public function suggest_follow(){
+        $follows = $this->follow_list();
+        $followed_ids = [];
+
+        foreach ($follows as $follow){
+            array_push($followed_ids, $follow->follow_user_id);
+        }
+       
+        $users = User::whereNotIn('id', $followed_ids)->whereNot('id', Auth::id())->get()->random(10);
         return response([
-            'follows' => $follows, 'users' => $users['id']
+            'suggest_users' => $users
         ], 200);
     }
 

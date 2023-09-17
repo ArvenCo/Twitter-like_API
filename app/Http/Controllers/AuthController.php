@@ -29,6 +29,8 @@ class AuthController extends Controller
         $token = $user->createToken('twitter-like')->plainTextToken;
 
         return response ([
+            'status' => 'created',
+            'message' => 'User registeration success',
             'user' => $user,
             'token' => $token
         ], 201);

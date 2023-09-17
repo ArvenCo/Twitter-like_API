@@ -35,6 +35,7 @@ Route::prefix('user')->group(function () {
 Route::group(['middleware' => ['auth:sanctum']],function(){
     
     Route::group(['prefix' => '/tweet'], function(){
+        Route::get('/{id?}',[TweetController::class, 'show_tweets']);
         Route::post('/',[TweetController::class, 'store']);
         Route::put('/{tweet_id}',[TweetController::class, 'update']);
         Route::delete('/{tweet_id}',[TweetController::class, 'destroy']);
@@ -44,7 +45,7 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
      * follow unfollow user
      */
     Route::group(['prefix' => '/follow'], function(){
-        Route::get('/',[FollowController::class, 'random_index']);
+        Route::get('/',[FollowController::class, 'suggest_follow']);
         Route::post('/',[FollowController::class,'store']);
         Route::delete('/{follow_user_id}',[FollowController::class, 'destroy']);
     });
