@@ -15,12 +15,12 @@ class TweetController extends Controller
     public function store(Request $request)
     {
         $fields = $request->validate([
-            'tweet' => 'present|nullable',
+            'content' => 'present|nullable',
             'files' => 'present|nullable|max:50000000'
         ]);
         
 
-        if (!$fields['tweet'] && !$fields['files'] ){
+        if (!$fields['content'] && !$fields['files'] ){
             return response([
                 'status' => 'Bad Request',
                 'message' =>'No Post'
@@ -28,7 +28,7 @@ class TweetController extends Controller
         }
         
         $tweet = Tweet::create([
-            'tweet' => $fields['tweet'],
+            'content' => $fields['content'],
             'user_id' => $request->user()['id']
         ]);
 
@@ -47,7 +47,7 @@ class TweetController extends Controller
 
     public function update(Request $request, $tweet_id){
         $tweet = Tweet::find($tweet_id);
-        $tweet->tweet = $request['tweet'];
+        $tweet->content = $request['content'];
         $tweet->save();
         return response(['message' => 'Tweet updated', 'tweet'=> $tweet], 201);
     }

@@ -16,7 +16,7 @@ class UserFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
+    {   
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),

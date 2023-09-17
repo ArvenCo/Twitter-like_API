@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 use App\Models\User;
+use App\Models\Tweet;
+use App\Models\Follow;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,11 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->count(10)->make();
-
+        User::factory()->count(20)->create();
+        Tweet::factory()->count(50)->create();
+        Follow::factory()->count(15)->create();
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
+        
     }
 }
