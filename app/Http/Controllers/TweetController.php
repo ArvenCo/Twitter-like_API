@@ -70,7 +70,7 @@ class TweetController extends Controller
         foreach($follows->follow_list()as $follow){
             array_push($follow_ids, $follow['follow_user_id']);
         }
-        
+
         if($id == null){
             $tweets = Tweet::whereIn('user_id', $follow_ids)->get();
         }else{
@@ -80,7 +80,7 @@ class TweetController extends Controller
                   'message' => 'You are not following this user'
                 ], 400);
             }else{
-                $tweets = Tweet::where('user_id', $id)->get();
+                $tweets = Tweet::where('user_id', $id)->orderBy('created_at')->desc()->get();
             }
         }
        
