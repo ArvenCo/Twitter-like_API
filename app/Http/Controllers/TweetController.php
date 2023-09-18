@@ -18,11 +18,16 @@ class TweetController extends Controller
     public function store(Request $request)
     {
         $fields = $request->validate([
-            'content' => 'present|nullable',
-            'files' => 'present|nullable|max:50000000'
+            'content' => 'present',
+            'video' => 'present|nullable|max:50000000',
+            'video.*'=> 'mimetypes:video/mp4',
+            'image' => 'image',
+            'image' => 'present|nullable'
         ]);
-        
 
+        
+        
+        
         if (!$fields['content'] && !$fields['files'] ){
             return response([
                 'status' => 'Bad Request',
@@ -30,13 +35,16 @@ class TweetController extends Controller
             ], 400);
         }
         
+        
         $tweet = Tweet::create([
             'content' => $fields['content'],
             'user_id' => $request->user()['id']
         ]);
 
-        if( count($request->file('files')) > 0){
-            $userFiles = new UserFileController;
+
+        $userFiles = new UserFileController;
+
+        if($request->file('image') != null||$request->file('video') != null){
             $response = $userFiles->store($request, $tweet->id);
             if(!$response){
                 return response([
@@ -45,9 +53,18 @@ class TweetController extends Controller
             }
         }
 
-        return response([ 'message' => 'Tweet posted', 'tweet'=> $tweet], 201);
+        return response([ 
+            'message' => 'Tweet posted', 'tweet'=> $tweet, 
+            'attachments' => $userFiles->show($tweet->id)
+        ], 201);
     }
-
+    
+    
+    
+    /**
+     * 
+     * Update tweet
+     */
     public function update(Request $request, $tweet_id){
         $tweet = Tweet::find($tweet_id);
         $tweet->content = $request['content'];
@@ -66,7 +83,8 @@ class TweetController extends Controller
         
         $follow_ids = [];
         $follows = new FollowController;
-        
+        $userFiles = new UserFileController;
+
         foreach($follows->follow_list()as $follow){
             array_push($follow_ids, $follow['follow_user_id']);
         }
@@ -80,16 +98,20 @@ class TweetController extends Controller
                   'message' => 'You are not following this user'
                 ], 400);
             }else{
-                $tweets = Tweet::where('user_id', $id)->orderBy('created_at')->desc()->get();
+                $tweets = Tweet::where('user_id', $id)->orderBy('created_at', 'desc')->get();
+                
+
             }
         }
-       
-       
 
-        
+        $data = [];
+        foreach($tweets as $tweet){
+            array_push($data, array_merge(
+                $tweet->toArray(), $userFiles->show($tweet->id)
+            ));
+        }
 
-        
-        return response(['status'=> 'Success','tweets' => $tweets], 200);
+        return response(['status'=> 'Success','tweets' => $data], 200);
         
         
     }

@@ -52,6 +52,9 @@ Route::group(['middleware' => ['auth:sanctum']],function(){
     
 });
 
+Route::post('/attach',[UserFileController::class, 'store']);
+Route::get('/attach/{id}',[UserFileController::class, 'show']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });

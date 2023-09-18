@@ -14,9 +14,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        //User::factory()->count(20)->create();
-        Tweet::factory()->count(50)->create();
-        //Follow::factory()->count(15)->create();
+        User::factory()->count(20)->create();
+        Tweet::factory()->count(60)->create();
+        Follow::factory()->count(30)->create();
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
