@@ -96,7 +96,7 @@ return [
         'mongodb' => [
             'driver' => 'mongodb',
             'dsn' => env('DB_DSN'),
-            'database' => env('DB_DATABASE', 'Twitter_likeDB'),
+            'database' => env('DB_DATABASE'),
         ],
 
     ],
